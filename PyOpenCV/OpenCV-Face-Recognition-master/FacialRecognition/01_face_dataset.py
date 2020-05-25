@@ -20,8 +20,8 @@ cam.set(4, 480) # set video height
 face_detector = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
 # For each person, enter one numeric face id
-face_id = input('\n enter user id (between 1 and 99 ) and press <return> ==>  ')
-if face_id < 1 || face_id > 99:
+face_id = input('\n enter user id (between 1 and 99 ) and press <return> ==>')
+if int(face_id) < 1 or int(face_id) > 99:
     print('Not allowed')
     exit()
 
@@ -30,10 +30,20 @@ if face_id < 1 || face_id > 99:
 face_name = input('\n enter user name end press <return> ==>  ')
 # -----------------------------------------------------
 
+string_name = "User." + str(face_id) + '.' + str(face_name) 
+
+
+for data in os.listdir("dataset/"):
+    filename = data.split(".")
+    if filename[1] == str(face_id):                 #string_name in data:
+        print("This id already exists")
+        exit(0)
+
 
 print("\n [INFO] Initializing face capture. Look the camera and wait ...")
 # Initialize individual sampling face count
 count = 0
+
 
 while(True):
 
@@ -51,8 +61,12 @@ while(True):
         # Save the captured image into the datasets folder
         # cv2.imwrite("dataset/User." + str(face_id) + '.' + str(count) + ".jpg", gray[y:y+h,x:x+w])
         # -----------------------------------------------------
-        cv2.imwrite("dataset/User." + str(face_id) + '.' + str(face_name) + '.' + str(count) + ".jpg", gray[y:y+h,x:x+w])
+        wstatus=cv2.imwrite("dataset/User." + str(face_id) + '.' + str(face_name) + '.' + str(count) + ".jpg", gray[y:y+h,x:x+w])
         # -----------------------------------------------------
+        if wstatus is False:
+            print("Issue found at Saving data");
+
+
         cv2.imshow('image', img)
 
     k = cv2.waitKey(100) & 0xff # Press 'ESC' for exiting video
@@ -64,6 +78,6 @@ while(True):
 # Do a bit of cleanup
 print("\n [INFO] Exiting Program and cleanup stuff")
 cam.release()
-cv2.destroyAllWindows()
+cv2.destroyAllWindows() 
 
 
