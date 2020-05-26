@@ -13,12 +13,6 @@ import cv2
 import os
 import time 
 
-#cam = cv2.VideoCapture(0)
-#cam.set(3, 640) # set video width
-#cam.set(4, 480) # set video height
-
-
-
 class Detection: 
     def __init__(self, model='haarcascade_frontalface_default.xml'):
         self.model = model;
@@ -27,47 +21,41 @@ class Detection:
         self.classes={};
 
 
-    def check_data(self,face_id):
+    def parse_data(self):
         if not (os.path.exists("dataset/")):
             print(" dataset folder does not exits\n")
             exit(0)
         for data in os.listdir("dataset/"):
             filename = data.split(".")
-            if filename[1] == str(face_id):                 #string_name in data:
-                print("This id already exists\n")
-                exit(0)
+            try:
+                self.classes[filename[1]]['size']+= 1 
+            except:
+                try:
+                    self.classes[filename[1]]={'size':1,'name':filename[2]}
+                except:
+                    pass
 
+        self.nclasses = len(self.classes)
+        print(self.classes)
 
-    def capture(self):
-
+    def capture(self,face_name):
+        self.parse_data()
         cam = cv2.VideoCapture(0)
         cam.set(3, 640) # set video width
         cam.set(4, 480) # set video height
 
         face_detector = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
-        # For each person, enter one numeric face id
-        face_id = input('\n enter user id (between 1 and 99 ) and press <return> ==>')
-        if int(face_id) < 1 or int(face_id) > 99:
-            print('Not allowed')
+        face_id = self.nclasses+1
+        for face_id in range(self.nclasses+1,100,1):
+            if str(face_id) not in self.classes:                 #string_name in data:
+                break
+        if self.nclasses>99:
+            print("Data set indexes number was exceeded\n")
             exit(0)
 
-        # -----------------------------------------------------
-        # For each person, enter name of person
-        face_name = input('\n enter user name end press <return> ==>  ')
-        # -----------------------------------------------------
-
-        string_name = "User." + str(face_id) + '.' + str(face_name) 
-
-        '''  
-        for data in os.listdir("dataset/"):
-            filename = data.split(".")
-            if filename[1] == str(face_id):                 #string_name in data:
-                print("This id already exists")
-                exit(0)
-        '''
-        self.check_data(face_id)
-
+        
+        string_name = "User." + str(face_id) + '.' + str(face_name)  
         print("\n [INFO] Initializing face capture. Look the camera and wait ...")
         #Initialize individual sampling face count
         count = 0
@@ -108,4 +96,9 @@ class Detection:
         cam.release()
         cv2.destroyAllWindows() 
 
-
+''' example
+a=Detection()
+a.parse_data()
+print(a.nclasses)
+a.capture("jhon")
+'''
