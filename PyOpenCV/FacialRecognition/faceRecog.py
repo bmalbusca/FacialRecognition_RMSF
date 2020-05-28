@@ -133,7 +133,7 @@ class ImageRecogn:
     
                 _, imdata = cv2.imencode('.JPG',img)
                 time=datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-                jpac = json.dumps({"image": base64.b64encode(imdata).decode('ascii'), "time":time})
+                jpac = json.dumps({"image": base64.b64encode(imdata).decode('utf-8'), "time":time})
                 
                 try:
                     req.put("http://127.0.0.1:5000/get/", headers = {'Content-type': 'application/json'}, json=jpac)

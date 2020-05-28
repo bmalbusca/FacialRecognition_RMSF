@@ -4,6 +4,8 @@
   </head>
   <body>
     <h1>Video Streaming Demonstration</h1>
-    <img src="{{ source }}"></img>
+    {% for item in data %}
+        <img src="data:image/jpeg;base64,{{ item }}" alt="img_data"  id="imgslot"/>            	
+    {% endfor %}
   </body>
 </html>

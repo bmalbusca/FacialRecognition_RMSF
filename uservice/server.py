@@ -10,12 +10,13 @@ from io import *
 
 app = Flask(__name__)
 
-datab=None
+datab=[]
 
-def j2im(data):
-    img = base64.b64decode(data['image'])
+def j2im(data_image):
+    img = base64.b64decode(data_image)
     #image = Image.open(BytesIO(imdata))
-    return img 
+    return img
+
 @app.route('/')
 def index():
     return "Hello"
@@ -27,7 +28,17 @@ def video():
 
 @app.route('/play/', methods = ['GET','POST'])
 def display(): 
-    return render_template('index.html', source=datab)
+    return render_template('index.html', data=datab)
+
+@app.route('/img', methods = ['GET','POST'])
+def img():
+    #with open("./images.json", "w") as jsonFile:
+    #    json.dump(datab[0], jsonFile)
+    #f= open("test_images.txt","w+")
+    #f.write(datab[0])
+
+    print(datab[0])
+    return json.dumps(datab)
 
 
 @app.route('/get/', methods = ['PUT'])
@@ -35,11 +46,12 @@ def insert():
     
     res = request.get_json()
     dic = json.loads(res)
-    print(dic["time"])
-    image = j2im(dic)
-    datab=image 
-    print(type(image))
+    #print(dic["time"])
+    #image = j2im(dic["image"])
+    datab.append(dic["image"])
+    
+
     return make_response(jsonify({"message": "Collection created"}), 201)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
