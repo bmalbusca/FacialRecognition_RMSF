@@ -14,6 +14,10 @@ import cv2
 import numpy as np
 from PIL import Image
 import os
+import requests as req 
+import json
+from datetime import  *
+import base64
 
 class ImageRecogn:
     def __init__(self,path = 'dataset'):
@@ -126,6 +130,15 @@ class ImageRecogn:
 
                 cv2.rectangle(img, (x,y), (x+w,y+h), (0,255,0), 2)
                 id, confidence = self.recognizer.predict(gray[y:y+h,x:x+w])
+    
+                _, imdata = cv2.imencode('.JPG',img)
+                time=datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+                jpac = json.dumps({"image": base64.b64encode(imdata).decode('ascii'), "time":time})
+                
+                try:
+                    req.put("http://127.0.0.1:5000/get/", headers = {'Content-type': 'application/json'}, json=jpac)
+                except:
+                    pass
 
                 cv2.putText(img, self.classify(id,confidence), (x+5,y-5), font, 1, (255,255,255), 2)
                 confidence = "  {0}%".format(confidence)
