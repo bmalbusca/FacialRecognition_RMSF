@@ -130,17 +130,18 @@ class ImageRecogn:
 
                 cv2.rectangle(img, (x,y), (x+w,y+h), (0,255,0), 2)
                 id, confidence = self.recognizer.predict(gray[y:y+h,x:x+w])
+                label = self.classify(id,confidence)
     
                 _, imdata = cv2.imencode('.JPG',img)
                 time=datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-                jpac = json.dumps({"image": base64.b64encode(imdata).decode('utf-8'), "time":time})
+                jpac = json.dumps({"image": base64.b64encode(imdata).decode('utf-8'), "time":time, "token":12345, "name":label})
                 
                 try:
-                    req.put("http://127.0.0.1:5000/get/", headers = {'Content-type': 'application/json'}, json=jpac)
+                    req.put("http://127.0.0.1:5000/add/12345", headers = {'Content-type': 'application/json'}, json=jpac)
                 except:
                     pass
 
-                cv2.putText(img, self.classify(id,confidence), (x+5,y-5), font, 1, (255,255,255), 2)
+                cv2.putText(img, label, (x+5,y-5), font, 1, (255,255,255), 2)
                 confidence = "  {0}%".format(confidence)
                 cv2.putText(img, str(confidence), (x+5,y+h-5), font, 1, (255,255,0), 1)
 
