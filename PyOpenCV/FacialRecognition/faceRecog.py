@@ -6,7 +6,10 @@ import requests as req
 import json
 from datetime import  *
 import base64
-
+#import gpiozero  # The GPIO library for Raspberry Pi
+import time  # Enables Python to manage timing
+ 
+#led = gpiozero.LED(17) # Reference GPIO17
 class ImageRecogn:
     def __init__(self,path = 'dataset'):
         # Path for face image database
@@ -126,9 +129,9 @@ class ImageRecogn:
                 
                 if _historic and  (label in _historic):
                     delta = (time_com - _historic[label])
-                    #print("delta ", delta.total_seconds())
                     if (delta.total_seconds() > 10):
                         try:
+                            #led.on() # Turn the LED on
                             print("Preparing to send: " + label)
                             _historic={label:time_com}
                             _, imdata = cv2.imencode('.JPG',img)
@@ -139,8 +142,10 @@ class ImageRecogn:
                                 pass 
                         except:
                             pass 
+
                 if not _historic:
                     try:
+                        led.on() # Turn the LED on
                         print("Preparing to send 2: " + label)
                         _historic={label:time_com}
                         _, imdata = cv2.imencode('.JPG',img)
@@ -153,10 +158,18 @@ class ImageRecogn:
                     except:
                         pass
 
+                #time.sleep(1)
+                #led.off() # Turn the LED off
 
                 try:
                     door=req.get("http://127.0.0.1:5000/door/12345").text
                     print("DOOR: ", door)
+                    if(door["door"]>0):
+                         led.on() # Turn the LED 
+                         time.sleep(1)
+                         led.off()
+                            
+
                 except:
                     pass 
 
