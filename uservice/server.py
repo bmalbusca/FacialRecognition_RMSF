@@ -13,9 +13,7 @@ import jsonpickle
 app = Flask(__name__)
 token = "12345"
 
-service = {}
-data = {}
-datab=[]
+service_st = {}
 
 
 class Client:
@@ -132,12 +130,26 @@ class Database:
 
     
 
+def check_user(name, password, service_id):
+        try: 
+            if (service_id  in DB.datab["service"]):
+                if (DB.datab["service"][service_id].name == name) and  (DB.datab["service"][service_id].password == password):
+                    return 200
+                else:
+                    return 410
+            else:
+                return 404
+        except:
+            return 400
+
+
+
 
                    
 DB= Database()
 DB.addService("12345")
+service_st["12345"]=0
 DB.insertClient("Bruno", "12345", "12345")
-
 
 
 
@@ -150,14 +162,39 @@ def index():
     return "SmartLock RMSF API V0.1"
 
 
+
+
+@app.route('/toggle/<path:subpath>', methods = ['POST'])
+def toogle(subpath):
+     keys = str(subpath).split("/")
+     if len(keys)<3:
+         abort(404)
+     print("Valid header" )
+     if (check_user(keys[0], keys[1], keys[2]) < 400):
+            service_st[keys[2]]=1
+     else:
+         abort(404)
+     return  make_response(jsonify(service_st), 200) 
+
+
+@app.route('/door/<path>', methods = ['GET','POST'])
+def door(path=None):
+    dic ={}
+    try:
+        dic[path]=service_st[path]
+        service_st[path]=0
+    except:
+        abort(404)
+    
+    return json.dumps(dic)
+
+
 @app.route('/play/<service>', methods = ['GET','POST'])
 def display(service): 
     listImg=[]
     print("play service "+ service )
     
     try:
-        listNoty =DB.datab["service"][service].pushNotification 
-        print("b_notification= " ,len(listNoty))
         for noty in listNoty:
             listImg.append(noty["image"]) 
         return render_template('index.html', data= listImg)

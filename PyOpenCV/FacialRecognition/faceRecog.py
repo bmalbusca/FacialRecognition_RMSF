@@ -141,6 +141,12 @@ class ImageRecogn:
                 except:
                     pass
 
+                try:
+                    door=req.get("http://127.0.0.1:5000/door/12345").text
+                    print("DOOR: ", door)
+                except:
+                    pass 
+
                 cv2.putText(img, label, (x+5,y-5), font, 1, (255,255,255), 2)
                 confidence = "  {0}%".format(confidence)
                 cv2.putText(img, str(confidence), (x+5,y+h-5), font, 1, (255,255,0), 1)
