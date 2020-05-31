@@ -1,15 +1,3 @@
-''''
-Training Multiple Faces stored on a DataBase:
-	==> Each face should have a unique numeric integer ID as 1, 2, 3, etc                       
-	==> LBPH computed model will be saved on trainer/ directory. (if it does not exist, pls create one)
-	==> for using PIL, install pillow library with "pip install pillow"
-
-Based on original code by Anirban Kar: https://github.com/thecodacus/Face-Recognition    
-
-Developed by Marcelo Rovai - MJRoBot.org @ 21Feb18   
-
-'''
-
 import cv2
 import numpy as np
 from PIL import Image
@@ -100,7 +88,8 @@ class ImageRecogn:
         
         self.recognizer.read('trainer/trainer.yml')
         font = cv2.FONT_HERSHEY_SIMPLEX
-        
+        _historic={}
+        delta=0
         #iniciate id counter
         id = 0
         # names related to ids: example ==> Marcelo: id=1,  etc
@@ -131,15 +120,39 @@ class ImageRecogn:
                 cv2.rectangle(img, (x,y), (x+w,y+h), (0,255,0), 2)
                 id, confidence = self.recognizer.predict(gray[y:y+h,x:x+w])
                 label = self.classify(id,confidence)
-    
-                _, imdata = cv2.imencode('.JPG',img)
                 time=datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-                jpac = json.dumps({"image": base64.b64encode(imdata).decode('utf-8'), "time":time, "token":12345, "name":label})
+                time_com=datetime.now()
+               
                 
-                try:
-                    req.put("http://127.0.0.1:5000/add/12345", headers = {'Content-type': 'application/json'}, json=jpac)
-                except:
-                    pass
+                if _historic and  (label in _historic):
+                    delta = (time_com - _historic[label])
+                    #print("delta ", delta.total_seconds())
+                    if (delta.total_seconds() > 10):
+                        try:
+                            print("Preparing to send: " + label)
+                            _historic={label:time_com}
+                            _, imdata = cv2.imencode('.JPG',img)
+                            jpac = json.dumps({"image": base64.b64encode(imdata).decode('utf-8'), "time":time, "token":12345, "name":label})
+                            try:
+                                req.put("http://127.0.0.1:5000/add/12345", headers = {'Content-type': 'application/json'}, json=jpac)
+                            except:
+                                pass 
+                        except:
+                            pass 
+                if not _historic:
+                    try:
+                        print("Preparing to send 2: " + label)
+                        _historic={label:time_com}
+                        _, imdata = cv2.imencode('.JPG',img)
+                        jpac = json.dumps({"image": base64.b64encode(imdata).decode('utf-8'), "time":time, "token":12345, "name":label})
+                        try:
+                            req.put("http://127.0.0.1:5000/add/12345", headers = {'Content-type': 'application/json'}, json=jpac)
+                        except:
+                            pass
+
+                    except:
+                        pass
+
 
                 try:
                     door=req.get("http://127.0.0.1:5000/door/12345").text
@@ -167,5 +180,5 @@ class ImageRecogn:
 
 
 a=ImageRecogn()
-a.fit()
+#a.fit()
 a.preditct()
