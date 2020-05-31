@@ -256,4 +256,4 @@ def insert(path=None):
     return make_response(jsonify({"message": "Collection added"}), 201)
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
