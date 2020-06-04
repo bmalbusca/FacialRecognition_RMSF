@@ -129,7 +129,7 @@ class Database:
             pass
 
     
-
+#check if user/service is already used
 def check_user(name, password, service_id):
         try: 
             if (service_id  in DB.datab["service"]):
@@ -148,14 +148,18 @@ def check_user(name, password, service_id):
                    
 DB= Database()
 DB.addService("12345")
+DB.addService("54321")
 service_st["12345"]=0
-DB.insertClient("Bruno", "12345", "12345")
+service_st["54321"]=0
+
+#debug user register
+DB.insertClient("Edgar", "54321", "54321")
 
 
 
 @app.errorhandler(404)
 def page_not_found(e):
-    return  "Sorry, source not available.", 404
+    return  "Sorry, end-point source not available.", 404
 
 @app.route('/')
 def index():
@@ -163,32 +167,36 @@ def index():
 
 
 
-
+#end-point for open the door
 @app.route('/toggle/<path:subpath>', methods = ['POST'])
 def toogle(subpath):
      keys = str(subpath).split("/")
-     if len(keys)<3:
+     if len(keys)<4:
          abort(404)
      print("Valid header" )
      if (check_user(keys[0], keys[1], keys[2]) < 400):
-            service_st[keys[2]]=1
+         if keys[3]=="on":
+             service_st[keys[2]]=1
+         elif keys[3]=="off":
+             service_st[keys[2]]=0
      else:
          abort(404)
-     return  make_response(jsonify(service_st), 200) 
+     return  make_response(jsonify({"info": "status flag updated"}), 200) 
 
 
+#end-point query for  hardware service  (doors status)
 @app.route('/door/<path>', methods = ['GET','POST'])
 def door(path=None):
     dic ={}
     try:
         dic[path]=service_st[path]
-        service_st[path]=0
+        #service_st[path]=0
     except:
         abort(404)
     
     return json.dumps(dic)
 
-
+#debug - service images
 @app.route('/play/<service>', methods = ['GET','POST'])
 def display(service): 
     listImg=[]
@@ -202,15 +210,37 @@ def display(service):
     except:
         abort(404)
     return render_template('index.html', data= listImg)
-    
 
+
+
+#end-point to register
+@app.route('/signin/<path:subpath>', methods = ['POST'])
+def signin(subpath):
+    
+    keys = str(subpath).split("/")
+   
+    if len(keys)<2 :
+        return make_response(jsonify({"error": "Request is not valid "}), 400)
+    
+    status = DB.findClient(keys[0],keys[1])
+    
+    if status == 200:
+        res = make_response(jsonify({"message": "This user account exists"}), 200)
+        return res
+    else:
+        abort(404)
+
+
+    
+#end-point to register
 @app.route('/register/<path:subpath>', methods = ['POST','PUT'])
 def register(subpath):
     
     keys = str(subpath).split("/")
     res = request.get_json()
-
-    if not res or res != token or len(keys)<3 :
+    
+    #not res or res != token 
+    if len(keys)<3 :
         return make_response(jsonify({"error": "Request is not valid "}), 400)
     
     status = DB.insertClient(keys[0],keys[1],keys[2])
@@ -224,7 +254,7 @@ def register(subpath):
     else:
         abort(404)
 
-
+#end-point to receive info 
 @app.route('/get/<path:subpath>', methods = ['GET','POST','PUT'])
 def get(subpath):
      keys = str(subpath).split("/")
@@ -239,6 +269,7 @@ def get(subpath):
          abort(404)
      return  make_response(jsonify(dump), 200) 
 
+#end-point insert data 
 @app.route('/add/<path>', methods = ['PUT'])
 def insert(path=None):
 
