@@ -6,10 +6,10 @@ import requests as req
 import json
 from datetime import  *
 import base64
-#import gpiozero  # The GPIO library for Raspberry Pi
+import gpiozero  # The GPIO library for Raspberry Pi
 import time  # Enables Python to manage timing
  
-#led = gpiozero.LED(17) # Reference GPIO17
+led = gpiozero.LED(17) # Reference GPIO17
 class ImageRecogn:
     def __init__(self,path = 'dataset'):
         # Path for face image database
@@ -131,13 +131,12 @@ class ImageRecogn:
                     delta = (time_com - _historic[label])
                     if (delta.total_seconds() > 10):
                         try:
-                            #led.on() # Turn the LED on
                             print("Preparing to send: " + label)
                             _historic={label:time_com}
                             _, imdata = cv2.imencode('.JPG',img)
                             jpac = json.dumps({"image": base64.b64encode(imdata).decode('utf-8'), "time":time, "token":12345, "name":label})
                             try:
-                                req.put("http://127.0.0.1:5000/add/12345", headers = {'Content-type': 'application/json'}, json=jpac)
+                                req.put("https://rmsf-smartlock.ew.r.appspot.com/add/12345", headers = {'Content-type': 'application/json'}, json=jpac)
                             except:
                                 pass 
                         except:
@@ -145,28 +144,29 @@ class ImageRecogn:
 
                 if not _historic:
                     try:
-                        led.on() # Turn the LED on
                         print("Preparing to send 2: " + label)
                         _historic={label:time_com}
                         _, imdata = cv2.imencode('.JPG',img)
                         jpac = json.dumps({"image": base64.b64encode(imdata).decode('utf-8'), "time":time, "token":12345, "name":label})
                         try:
-                            req.put("http://127.0.0.1:5000/add/12345", headers = {'Content-type': 'application/json'}, json=jpac)
+                            req.put("https://rmsf-smartlock.ew.r.appspot.com/add/12345", headers = {'Content-type': 'application/json'}, json=jpac)
                         except:
                             pass
 
                     except:
                         pass
 
-                #time.sleep(1)
-                #led.off() # Turn the LED off
+                if( label in self.names[id]):
+                    led.on()
+                    #time.sleep(1)
+                    led.off() # Turn the LED off
 
                 try:
-                    door=req.get("http://127.0.0.1:5000/door/12345").text
+                    door=req.get("https://rmsf-smartlock.ew.r.appspot.com/door/12345").text
                     print("DOOR: ", door)
-                    if(door["door"]>0):
-                         led.on() # Turn the LED 
-                         time.sleep(1)
+                    if(door["door"]==1):
+                         led.on() # Turn on the LED 
+                    elif door["door"]==0):
                          led.off()
                             
 
