@@ -120,7 +120,7 @@ class Database:
         obj=jsonpickle.encode(self.datab)
         try:
             with open(namefile, "w") as jsonFile:
-                json.dump(self.datab, jsonFile)
+                json.dump(obj, jsonFile)
         except:
             pass 
     
@@ -128,10 +128,9 @@ class Database:
         try:
             with open(namefile, "r") as jsonFile:
                 file_encryp = json.load(jsonFile)
-                self.datab = jsonpickle.decode(file_encryp)
+            self.datab = jsonpickle.decode(file_encryp)
         except:
             pass
-
     
 #check if user/service is already used
 def check_user(name, password, service_id):
@@ -178,6 +177,7 @@ def toogle(subpath):
      if len(keys)<4:
          abort(404)
      print("Valid header" )
+     DB.load()
      if (check_user(keys[0], keys[1], keys[2]) < 400):
          if keys[3]=="on":
              service_st[keys[2]]=1
@@ -205,7 +205,10 @@ def door(path=None):
 def display(service): 
     listImg=[]
     print("play service "+ service )
-    
+    print( DB.datab["service"])
+    if DB.datab["service"][service] is None:
+        abort(404)
+    listNoty = DB.datab["service"][service].pushNotification 
     try:
         for noty in listNoty:
             listImg.append(noty["image"]) 
@@ -225,7 +228,7 @@ def signin(subpath):
    
     if len(keys)<2 :
         return make_response(jsonify({"error": "Request is not valid "}), 400)
-    
+    DB.load()
     status = DB.findClient(keys[0],keys[1])
     
     if status == 200:
@@ -239,6 +242,7 @@ def signin(subpath):
 #end-point to register
 @app.route('/register/<path:subpath>', methods = ['POST','PUT'])
 def register(subpath):
+
     
     keys = str(subpath).split("/")
     res = request.get_json()
@@ -246,10 +250,11 @@ def register(subpath):
     #not res or res != token 
     if len(keys)<3 :
         return make_response(jsonify({"error": "Request is not valid "}), 400)
-    
+    DB.load()
     status = DB.insertClient(keys[0],keys[1],keys[2])
     
     if status == 200:
+        DB.save()
         res = make_response(jsonify({"message": "Collection add", "info":{"id":keys[2],"name": DB.datab["service"][keys[2]].name}}), status)
         return res
     elif  status == 400:

@@ -6,10 +6,12 @@ import requests as req
 import json
 from datetime import  *
 import base64
-import gpiozero  # The GPIO library for Raspberry Pi
+#import gpiozero  # The GPIO library for Raspberry Pi
 import time  # Enables Python to manage timing
- 
-led = gpiozero.LED(17) # Reference GPIO17
+#led = gpiozero.LED(17) # Reference GPIO17
+
+'''https://rmsf-smartlock.ew.r.appspot.com/'''
+service_id = 12345
 class ImageRecogn:
     def __init__(self,path = 'dataset'):
         # Path for face image database
@@ -127,29 +129,30 @@ class ImageRecogn:
                 time_com=datetime.now()
                
                 
-                if _historic and  (label in _historic):
-                    delta = (time_com - _historic[label])
-                    if (delta.total_seconds() > 10):
-                        try:
-                            print("Preparing to send: " + label)
-                            _historic={label:time_com}
-                            _, imdata = cv2.imencode('.JPG',img)
-                            jpac = json.dumps({"image": base64.b64encode(imdata).decode('utf-8'), "time":time2, "token":12345, "name":label})
+                if _historic: 
+                    if (label in _historic):
+                        delta = (time_com - _historic[label])
+                        if (delta.total_seconds() > 10):
                             try:
-                                req.put("https://rmsf-smartlock.ew.r.appspot.com/add/12345", headers = {'Content-type': 'application/json'}, json=jpac)
+                                print("Preparing to send: " + label)
+                                _historic={label:time_com}
+                                _, imdata = cv2.imencode('.JPG',img)
+                                jpac = json.dumps({"image": base64.b64encode(imdata).decode('utf-8'), "time":time2, "token":12345, "name":label})
+                                try:
+                                    req.put("http://127.0.0.1:5000/add/54321", headers = {'Content-type': 'application/json'}, json=jpac)
+                                except:
+                                    pass 
                             except:
                                 pass 
-                        except:
-                            pass 
 
-                if not _historic:
+                else:
                     try:
                         print("Preparing to send 2: " + label)
                         _historic={label:time_com}
                         _, imdata = cv2.imencode('.JPG',img)
                         jpac = json.dumps({"image": base64.b64encode(imdata).decode('utf-8'), "time":time2, "token":12345, "name":label})
                         try:
-                            req.put("https://rmsf-smartlock.ew.r.appspot.com/add/12345", headers = {'Content-type': 'application/json'}, json=jpac)
+                            req.put("http://127.0.0.1:5000/add/54321", headers = {'Content-type': 'application/json'}, json=jpac)
                         except:
                             pass
 
@@ -157,25 +160,26 @@ class ImageRecogn:
                         pass
 
                 if( label in self.names[id]):
-                    led.on()
-                    time.sleep(1)
-                    led.off() # Turn the LED off
+                    #led.on()
+                    time.sleep(0.5)
+                    #led.off() # Turn the LED off
 
-                try:
-                    door=req.get("https://rmsf-smartlock.ew.r.appspot.com/door/12345").text
-                    print("DOOR: ", door)
-                    if(door["door"]==1):
-                         led.on() # Turn on the LED 
-                    elif door["door"]==0:
-                         led.off()
-                            
-
-                except:
-                    pass 
 
                 cv2.putText(img, label, (x+5,y-5), font, 1, (255,255,255), 2)
                 confidence = "  {0}%".format(confidence)
                 cv2.putText(img, str(confidence), (x+5,y+h-5), font, 1, (255,255,0), 1)
+            
+            try:
+                door=req.get("https://rmsf-smartlock.ew.r.appspot.com/door/12345").text
+                print("DOOR: ", door)
+                if(door["door"]==1):
+                    #led.on() # Turn on the LED
+                    pass
+                elif door["door"]==0:
+                    #led.off()
+                    pass
+            except:
+                pass 
 
             cv2.imshow('camera',img)
     
