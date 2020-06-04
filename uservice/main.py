@@ -19,7 +19,7 @@ service_st = {}
 
 
 class Client:
-    def __init__(self, name,password, service_id, b_notification=5):
+    def __init__(self, name,password, service_id, b_notification=10):
         self.name=name;
         self.password=password;
         self.serviceList=[];
