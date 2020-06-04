@@ -13,6 +13,7 @@ import jsonpickle
 app = Flask(__name__)
 token = "12345"
 
+# door status 
 service_st = {}
 
 
@@ -70,6 +71,7 @@ class Database:
         for cl in self.datab["client"]:
             if cl.name == name and cl.password==password:
                 cl.addService(service_id)
+                #self.datab["service"][service_id]=cl 
                 return 200
         return 404
 
@@ -96,20 +98,22 @@ class Database:
                 return 200
         return 404
 
+
+
+
     def insertClient(self,name, password, service_id):
         #if service_id not in self.data["service"]:
         #    return 400  #Service does not exists
         
         if (self.findService(service_id) is not None) or (self.findService(service_id) == 404) :
-            return 404  #already attributed to other client
+            return 402 #already attributed to other client
 
         if  self.findClient(name,password) == 200:
-            self.datab["service"][service_id]=newClient 
-            return 201
+            return 400 
         else:
             newClient =Client(name,password, service_id)
             self.datab["client"].append(newClient)
-            self.datab["service"][service_id]=newClient
+            self.datab["service"][service_id]=newClient 
             return 200
     
     def save(self, namefile ="database.log"):
@@ -246,11 +250,13 @@ def register(subpath):
     status = DB.insertClient(keys[0],keys[1],keys[2])
     
     if status == 200:
-        res = make_response(jsonify({"message": "Collection replaced"}), 200)
+        res = make_response(jsonify({"message": "Collection add", "info":{"id":keys[2],"name": DB.datab["service"][keys[2]].name}}), status)
         return res
-    elif  status == 201:
-        res = make_response(jsonify({"message": "Collection created"}), 201)
-        return res
+    elif  status == 400:
+        return make_response(jsonify({"error": "This user account configuration is already used"}), status)
+    elif status == 402:
+        return  make_response(jsonify({"error": "This service is already attributed to other client"}), status) 
+
     else:
         abort(404)
 
