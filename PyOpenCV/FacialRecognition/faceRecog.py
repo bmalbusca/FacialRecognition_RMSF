@@ -119,11 +119,11 @@ class ImageRecogn:
             )
 
             for(x,y,w,h) in faces:
-
+                label=None 
                 cv2.rectangle(img, (x,y), (x+w,y+h), (0,255,0), 2)
                 id, confidence = self.recognizer.predict(gray[y:y+h,x:x+w])
                 label = self.classify(id,confidence)
-                time=datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+                time2=datetime.now().strftime("%d/%m/%Y %H:%M:%S")
                 time_com=datetime.now()
                
                 
@@ -134,7 +134,7 @@ class ImageRecogn:
                             print("Preparing to send: " + label)
                             _historic={label:time_com}
                             _, imdata = cv2.imencode('.JPG',img)
-                            jpac = json.dumps({"image": base64.b64encode(imdata).decode('utf-8'), "time":time, "token":12345, "name":label})
+                            jpac = json.dumps({"image": base64.b64encode(imdata).decode('utf-8'), "time":time2, "token":12345, "name":label})
                             try:
                                 req.put("https://rmsf-smartlock.ew.r.appspot.com/add/12345", headers = {'Content-type': 'application/json'}, json=jpac)
                             except:
@@ -147,7 +147,7 @@ class ImageRecogn:
                         print("Preparing to send 2: " + label)
                         _historic={label:time_com}
                         _, imdata = cv2.imencode('.JPG',img)
-                        jpac = json.dumps({"image": base64.b64encode(imdata).decode('utf-8'), "time":time, "token":12345, "name":label})
+                        jpac = json.dumps({"image": base64.b64encode(imdata).decode('utf-8'), "time":time2, "token":12345, "name":label})
                         try:
                             req.put("https://rmsf-smartlock.ew.r.appspot.com/add/12345", headers = {'Content-type': 'application/json'}, json=jpac)
                         except:
@@ -158,7 +158,7 @@ class ImageRecogn:
 
                 if( label in self.names[id]):
                     led.on()
-                    #time.sleep(1)
+                    time.sleep(1)
                     led.off() # Turn the LED off
 
                 try:
@@ -166,7 +166,7 @@ class ImageRecogn:
                     print("DOOR: ", door)
                     if(door["door"]==1):
                          led.on() # Turn on the LED 
-                    elif door["door"]==0):
+                    elif door["door"]==0:
                          led.off()
                             
 
