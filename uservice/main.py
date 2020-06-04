@@ -18,7 +18,7 @@ service_st = {}
 
 
 class Client:
-    def __init__(self, name,password, service_id, b_notification=10):
+    def __init__(self, name,password, service_id, b_notification=5):
         self.name=name;
         self.password=password;
         self.serviceList=[];
@@ -271,11 +271,21 @@ def get(subpath):
      keys = str(subpath).split("/")
      if len(keys)<3:
          abort(404)
+
      dump={}
-     if (keys[2] in DB.datab["service"]) and (DB.datab["service"][keys[2]].name==keys[0]) and  (DB.datab["service"][keys[2]].password==keys[1]):
-         listNoty =DB.datab["service"][keys[2]].pushNotification
-         dump={"notification":listNoty}
-         print(dump)
+     listNoty= None
+
+     if (keys[2] in DB.datab["service"]) and (DB.datab["service"][keys[2]] is not None):
+        if (DB.datab["service"][keys[2]].name==keys[0]) and  (DB.datab["service"][keys[2]].password==keys[1]):
+            try:
+                listNoty =DB.datab["service"][keys[2]].pushNotification[0]
+            except:
+                pass 
+
+            dump={"notification":listNoty}
+            print(dump)
+        else:
+            abort(404)
      else:
          abort(404)
      return  make_response(jsonify(dump), 200) 
