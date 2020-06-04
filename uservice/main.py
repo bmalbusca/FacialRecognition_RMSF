@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+#
+/usr/bin/env python
 from flask import Flask , redirect, url_for, request, render_template, make_response, jsonify
 from flask import send_file, abort
 import requests as req 
