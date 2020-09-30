@@ -42,7 +42,7 @@ class Detection:
 
 
 
-    def capture(self,face_name, face_id=None, nclips=80):
+    def capture(self,face_name, face_id=None, nclips=60):
         cam = cv2.VideoCapture(0)
         cam.set(3, 640) # set video width
         cam.set(4, 480) # set video height
@@ -111,7 +111,7 @@ class Detection:
 ''' example ''' 
 a=Detection()
 a.parse_data()
-#a.updateData(5, 'bruno')
-a.capture("Bruno", nclips=90)
+
+a.capture("Bruno",5, nclips=60)
 
 
