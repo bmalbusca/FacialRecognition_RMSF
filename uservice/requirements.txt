@@ -48,7 +48,7 @@ pyparsing==2.4.2
 pyst2==0.5.1
 python-dateutil==2.8.0
 pytz==2019.2
-PyYAML==5.1.2
+PyYAML==5.4
 requests==2.22.0
 serpent==1.28
 shellescape==3.8.1
