@@ -34,7 +34,7 @@ Markdown==3.1.1
 MarkupSafe==1.1.1
 mlxtend==0.17.0
 Naked==0.1.31
-numpy==1.17.2
+numpy==1.22.0
 opencv-contrib-python==4.2.0.32
 opencv-contrib-python-headless==4.2.0.32
 opencv-python==4.2.0.32
