@@ -2,7 +2,7 @@ absl-py==0.8.0
 appdirs==1.4.4
 argopt==0.5.0
 bsv==0.4.1
-certifi==2019.6.16
+certifi==2022.12.7
 cffi==1.13.2
 chardet==3.0.4
 Click==7.0
