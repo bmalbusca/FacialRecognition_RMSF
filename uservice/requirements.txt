@@ -40,7 +40,7 @@ opencv-contrib-python-headless==4.2.0.32
 opencv-python==4.2.0.32
 opencv-python-headless==4.2.0.32
 pbr==5.4.5
-Pillow==9.3.0
+Pillow==10.0.1
 protobuf==3.9.2
 Pygments==2.15.0
 pyOpenSSL==19.1.0
