@@ -42,7 +42,7 @@ opencv-python-headless==4.2.0.32
 pbr==5.4.5
 Pillow==9.3.0
 protobuf==3.9.2
-Pygments==2.7.4
+Pygments==2.15.0
 pyOpenSSL==19.1.0
 pyparsing==2.4.2
 pyst2==0.5.1
