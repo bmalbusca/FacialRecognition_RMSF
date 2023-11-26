@@ -64,7 +64,7 @@ urllib3==1.26.18
 virtualenv==20.0.21
 virtualenv-clone==0.5.4
 virtualenvwrapper==4.8.4
-Werkzeug==2.2.3
+Werkzeug==2.3.8
 Wikidata==0.6.1
 wrapt==1.11.2
 zipp==3.1.0
